@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Wardrobe/Wardrobe.csproj" />
+  <Project Path="WardrobeQuest/WardrobeQuest.csproj" />
+</Solution>
