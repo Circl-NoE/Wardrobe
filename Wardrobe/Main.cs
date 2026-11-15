@@ -1,5 +1,6 @@
 ﻿using Alta.Api.DataTransferModels.Models.Responses;
 using Alta.Customization;
+using Alta.Meta.UI;
 using HarmonyLib;
 using MelonLoader;
 using System;
@@ -7,9 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
-[assembly:MelonInfo(typeof(Wardrobe.Main), "Wardrobe", "0.0.1", "Circl")]
+[assembly:MelonInfo(typeof(Wardrobe.Main), "Wardrobe", "0.0.2", "Circl")]
 
 namespace Wardrobe
 {
@@ -49,6 +51,10 @@ namespace Wardrobe
 
         public static int MaxPage => Presets.Count / 10;
 
+        private static bool load = false;
+        private static float lastChangeTime = -10f;
+        private const float cooldown = 0.03f;
+
         public static async Task Refresh()
         {
             var result = await ApiAccess.ApiClient.UserClient.GetAllCosmeticsPresets();
@@ -69,6 +75,14 @@ namespace Wardrobe
 
         public static async Task LoadPage(CosmeticPresetsManager instance, int page)
         {
+            if (load) return;
+
+            if (Time.unscaledTime - lastChangeTime < cooldown) return;
+
+            load = true;
+
+            lastChangeTime = Time.unscaledTime;
+
             try
             {
                 foreach (CosmeticPresetSlot slot in instance.slots)
@@ -114,6 +128,10 @@ namespace Wardrobe
             {
                 MelonLogger.Error(ex);
             }
+            finally
+            {
+                load = false;
+            }
         }
 
         public static async Task NextPage(CosmeticPresetsManager instance)
@@ -133,6 +151,38 @@ namespace Wardrobe
         public static bool LogInPrefix(CosmeticPresetsManager __instance)
         {
             PageManager.Manager = __instance;
+            MelonLogger.Msg("Attempting to add buttons");
+            GameObject cusInterface = GameObject.Find("Cosmetic Interface");
+            if (cusInterface != null)
+            {
+                GameObject[] stuff = Resources.FindObjectsOfTypeAll<GameObject>();
+                foreach (GameObject go in stuff)
+                {
+                    if (go.transform.parent == null && go.name == "Base Button Square")
+                    {
+                        GameObject button = GameObject.Instantiate(go);
+                        button.transform.SetParent(cusInterface.transform, false);
+                        button.transform.localPosition = new Vector3(0.8371215f, 0.7794635f, -0.3004791f);
+                        button.transform.localRotation = Quaternion.Euler(new Vector3(-129.583f, 90.964f, 0));
+                        PhysicalButton physButton = button.GetComponentInChildren<PhysicalButton>();
+                        physButton.pressed += () =>
+                        {
+                            PageManager.PreviousPage(PageManager.Manager);
+                        };
+                        GameObject button2 = GameObject.Instantiate(go);
+                        button2.transform.SetParent(cusInterface.transform, false);
+                        button2.transform.localPosition = new Vector3(0.8263088f, 0.7794635f, -0.942991f);
+                        button2.transform.localRotation = Quaternion.Euler(new Vector3(-129.583f, 90.964f, 0));
+                        PhysicalButton physButton2 = button2.GetComponentInChildren<PhysicalButton>();
+                        physButton2.pressed += () =>
+                        {
+                            PageManager.NextPage(PageManager.Manager);
+                        };
+                        MelonLogger.Msg("Added buttons");
+                        break;
+                    }
+                }
+            }
             LoadPresets(__instance);
             return false;
         }
