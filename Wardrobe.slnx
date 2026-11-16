@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="Wardrobe/Wardrobe.csproj" />
-  <Project Path="WardrobeQuest/WardrobeQuest.csproj" />
+  <Project Path="Wardrobe/Wardrobe.csproj" Id="32518f2a-5c9b-4a65-90d2-8c55db00eee6" />
+  <Project Path="WardrobeQuest/WardrobeQuest.csproj" Id="451ea0e9-4b17-4eeb-a7be-fdcfec1dc614" />
 </Solution>

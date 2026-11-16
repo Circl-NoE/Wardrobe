@@ -11,32 +11,37 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[assembly:MelonInfo(typeof(Wardrobe.Main), "Wardrobe", "0.0.2", "Circl")]
+[assembly:MelonInfo(typeof(Wardrobe.Main), "Wardrobe", "1.0.0", "Circl")]
 
 namespace Wardrobe
 {
     public class Main : MelonMod
     {
+        private static MelonPreferences_Category category;
+        internal static MelonPreferences_Entry<float> burn;
+        internal static MelonPreferences_Entry<bool> debug;
         public override void OnInitializeMelon()
         {
             MelonLogger.Msg("More slots! :D");
+            category = MelonPreferences.CreateCategory("Wardrobe");
+            burn = category.CreateEntry<float>("Burn Trophies", 0.5f);
+            debug = category.CreateEntry<bool>("Debug Kaybinds", false);
+            MelonPreferences.Save();
         }
 
         public override void OnUpdate()
         {
-            if (PageManager.Manager == null)
+            if (debug.Value)
             {
-                return;
-            }
+                if (Keyboard.current != null && Keyboard.current.minusKey.wasPressedThisFrame)
+                {
+                    PageManager.PreviousPage(PageManager.Manager);
+                }
 
-            if (Keyboard.current != null && Keyboard.current.minusKey.wasPressedThisFrame)
-            {
-                PageManager.PreviousPage(PageManager.Manager);
-            }
-
-            if (Keyboard.current != null && Keyboard.current.equalsKey.wasPressedThisFrame)
-            {
-                PageManager.NextPage(PageManager.Manager);
+                if (Keyboard.current != null && Keyboard.current.equalsKey.wasPressedThisFrame)
+                {
+                    PageManager.NextPage(PageManager.Manager);
+                }
             }
         }
     }
@@ -156,6 +161,17 @@ namespace Wardrobe
             if (cusInterface != null)
             {
                 GameObject[] stuff = Resources.FindObjectsOfTypeAll<GameObject>();
+                Mesh[] meshes = Resources.FindObjectsOfTypeAll<Mesh>();
+                Mesh arrowmesh = Array.Find(meshes, u => u.name == "arrow_icon");
+                
+                GameObject arrowTemp = new GameObject();
+                MeshFilter filt = arrowTemp.AddComponent<MeshFilter>();
+                filt.mesh = arrowmesh;
+                MeshRenderer rend = arrowTemp.AddComponent<MeshRenderer>();
+                Material[] materials = Resources.FindObjectsOfTypeAll<Material>();
+
+                rend.materials = new Material[] {Array.Find(materials, u => u.name == "Red Iron NonForging")};
+
                 foreach (GameObject go in stuff)
                 {
                     if (go.transform.parent == null && go.name == "Base Button Square")
@@ -169,6 +185,11 @@ namespace Wardrobe
                         {
                             PageManager.PreviousPage(PageManager.Manager);
                         };
+
+                        GameObject leftArrow = GameObject.Instantiate(arrowTemp);
+                        leftArrow.transform.SetParent(button.transform, false);
+                        leftArrow.transform.localPosition = new Vector3(0.0058f, 0, 0.0698f);
+
                         GameObject button2 = GameObject.Instantiate(go);
                         button2.transform.SetParent(cusInterface.transform, false);
                         button2.transform.localPosition = new Vector3(0.8263088f, 0.7794635f, -0.942991f);
@@ -178,6 +199,12 @@ namespace Wardrobe
                         {
                             PageManager.NextPage(PageManager.Manager);
                         };
+
+                        GameObject rightArrow = GameObject.Instantiate(arrowTemp);
+                        rightArrow.transform.SetParent(button2.transform, false);
+                        rightArrow.transform.localPosition = new Vector3(-0.0058f, 0, 0.0698f);
+                        rightArrow.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 180));
+
                         MelonLogger.Msg("Added buttons");
                         break;
                     }
@@ -189,6 +216,12 @@ namespace Wardrobe
         private static async void LoadPresets(CosmeticPresetsManager instance)
         {
             await PageManager.LoadPage(instance, 0);
+        }
+
+        [HarmonyPatch(typeof(CosmeticPresetTrophy), nameof(CosmeticPresetTrophy.BurnAnimation)), HarmonyPrefix]
+        public static void cancelBurn(CosmeticPresetTrophy __instance)
+        {
+            __instance.burnDuration = Main.burn.Value;
         }
     }
 }
