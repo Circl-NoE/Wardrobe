@@ -25,7 +25,7 @@ namespace Wardrobe
             MelonLogger.Msg("More slots! :D");
             category = MelonPreferences.CreateCategory("Wardrobe");
             burn = category.CreateEntry<float>("Burn Trophies", 0.5f);
-            debug = category.CreateEntry<bool>("Debug Kaybinds", false);
+            debug = category.CreateEntry<bool>("Debug Keybinds", false);
             MelonPreferences.Save();
         }
 
