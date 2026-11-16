@@ -168,9 +168,6 @@ namespace Wardrobe
                 MeshFilter filt = arrowTemp.AddComponent<MeshFilter>();
                 filt.mesh = arrowmesh;
                 MeshRenderer rend = arrowTemp.AddComponent<MeshRenderer>();
-                Material[] materials = Resources.FindObjectsOfTypeAll<Material>();
-
-                rend.materials = new Material[] {Array.Find(materials, u => u.name == "Red Iron NonForging")};
 
                 foreach (GameObject go in stuff)
                 {
@@ -209,6 +206,7 @@ namespace Wardrobe
                         break;
                     }
                 }
+                GameObject.Destroy(arrowTemp);
             }
             LoadPresets(__instance);
             return false;
