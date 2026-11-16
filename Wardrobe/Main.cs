@@ -35,12 +35,12 @@ namespace Wardrobe
             {
                 if (Keyboard.current != null && Keyboard.current.minusKey.wasPressedThisFrame)
                 {
-                    PageManager.PreviousPage(PageManager.Manager);
+                    PageManager.PreviousPage();
                 }
 
                 if (Keyboard.current != null && Keyboard.current.equalsKey.wasPressedThisFrame)
                 {
-                    PageManager.NextPage(PageManager.Manager);
+                    PageManager.NextPage();
                 }
             }
         }
@@ -139,13 +139,13 @@ namespace Wardrobe
             }
         }
 
-        public static async Task NextPage(CosmeticPresetsManager instance)
+        public static async Task NextPage()
         {
-            await LoadPage(instance, Page + 1);
+            await LoadPage(Manager, Page + 1);
         }
-        public static async Task PreviousPage(CosmeticPresetsManager instance)
+        public static async Task PreviousPage()
         {
-            await LoadPage(instance, Page - 1);
+            await LoadPage(Manager, Page - 1);
         }
     }
 
@@ -180,7 +180,7 @@ namespace Wardrobe
                         PhysicalButton physButton = button.GetComponentInChildren<PhysicalButton>();
                         physButton.pressed += () =>
                         {
-                            PageManager.PreviousPage(PageManager.Manager);
+                            PageManager.PreviousPage();
                         };
 
                         GameObject leftArrow = GameObject.Instantiate(arrowTemp);
@@ -194,7 +194,7 @@ namespace Wardrobe
                         PhysicalButton physButton2 = button2.GetComponentInChildren<PhysicalButton>();
                         physButton2.pressed += () =>
                         {
-                            PageManager.NextPage(PageManager.Manager);
+                            PageManager.NextPage();
                         };
 
                         GameObject rightArrow = GameObject.Instantiate(arrowTemp);
